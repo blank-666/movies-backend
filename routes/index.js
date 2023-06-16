@@ -1,14 +1,10 @@
 import app from "express";
 import MoviesRouter from "./movies.js";
+import DirectorsRouter from "./directors.js";
 
 const router = app.Router();
 
 router.use("/movies", MoviesRouter);
-
-/* GET home page. */
-router.get("/", (req, res, next) => {
-  console.log("initial request");
-  res.send("Hi thereee!");
-});
+router.use("/directors", DirectorsRouter);
 
 export default router;

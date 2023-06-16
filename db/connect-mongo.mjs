@@ -40,6 +40,4 @@ try {
 
 let db = await conn.db("sample_mflix");
 
-export const moviesCollection = db.collection("movies");
-
 export default db;
