@@ -1,0 +1,13 @@
+const statusCodes = {
+  OK: 200,
+  INVALID_DATA: 400,
+  UNAUTHORIZED: 401,
+  NO_PERMISSION: 403,
+  PAYMENT_REQUIRED: 402,
+  NOT_FOUND: 404,
+  UNSUPPORTED_MEDIA: 415,
+  SESSION_ERROR: 440,
+  SERVER_ERROR: 500,
+};
+
+export default statusCodes;
