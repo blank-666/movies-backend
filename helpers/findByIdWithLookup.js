@@ -8,45 +8,47 @@ const { NOT_FOUND } = statusCodes;
  * findWithLookup
  * @param {string} id - id for filter
  * @param {string} searchCollection - searchable collection
- * @param {string} lookupCollection - collection from which we extract data
- * @param {string} field - field with references
- * @param {string} lookupField - fields that we extract from the document by reference
+ * @param {Object[]} lookups - lookups configuration
+ * @param {string} lookups[].remoteCollection - collection from which we extract data
+ * @param {string} lookups[].newField - field into which we extract the data
+ * @param {string} lookups[].originField - field with references
+ * @param {string} lookups[].remoteField - fields that we extract from the document by reference
  * @returns {Promise<object[]>}
  */
-const findByIdWithLookup = async (
-  id,
-  searchCollection,
-  lookupCollection,
-  field,
-  lookupField
-) => {
+const findByIdWithLookup = async (id, searchCollection, lookups) => {
   const collection = db.collection(searchCollection);
-  const lookupResultField = lookupCollection;
-  const temporaryField = `${lookupResultField}_docs`;
 
   if (!collection) throw new ErrorHandler(NOT_FOUND, "Collection not found.");
 
-  const stages = [
-    { $match: { _id: convertId(id) } },
-    {
+  const lookupStages = [];
+  const addFieldsConfig = {};
+  const projectConfig = {};
+
+  for (const lookup of lookups) {
+    const { remoteCollection, newField, originField, remoteField } = lookup;
+    const temporaryField = `${remoteCollection}_docs`;
+
+    lookupStages.push({
       $lookup: {
-        from: lookupCollection,
-        localField: field,
+        from: remoteCollection,
+        localField: originField,
         foreignField: "_id",
         as: temporaryField,
       },
-    },
+    });
+
+    (addFieldsConfig[newField] = `$${temporaryField}.${remoteField}`),
+      (projectConfig[temporaryField] = 0);
+    projectConfig[originField] = 0;
+  }
+
+  const stages = [
+    { $match: { _id: convertId(id) } },
+    ...lookupStages,
     {
-      $addFields: {
-        [lookupResultField]: `$${temporaryField}.${lookupField}`,
-      },
+      $addFields: addFieldsConfig,
     },
-    {
-      $project: {
-        [temporaryField]: 0,
-        [field]: 0,
-      },
-    },
+    { $project: projectConfig },
   ];
 
   const result = await db

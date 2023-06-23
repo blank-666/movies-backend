@@ -84,13 +84,20 @@ router.get("/:id", async (req, res, next) => {
     const { params } = req;
     const { id } = params;
 
-    const movie = await findByIdWithLookup(
-      id,
-      "movies",
-      "directors",
-      "director_ids",
-      "name"
-    );
+    const movie = await findByIdWithLookup(id, "movies", [
+      {
+        remoteCollection: "directors",
+        newField: "directors",
+        originField: "director_ids",
+        remoteField: "name",
+      },
+      {
+        remoteCollection: "actors",
+        newField: "actors",
+        originField: "actor_ids",
+        remoteField: "name",
+      },
+    ]);
 
     if (!movie) throw new ErrorHandler(NOT_FOUND, "Movie not found.");
 
