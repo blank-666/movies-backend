@@ -1,7 +1,5 @@
 import app from "express";
 
-const router = app.Router();
-
 import statusCodes from "../constants.js";
 import { moviesCollection } from "../db/collections.js";
 import {
@@ -15,27 +13,24 @@ import {
 import { sortBySearchScore } from "../helpers/sort.js";
 import { ErrorHandler } from "../middlewares/error.js";
 import findByIdWithLookup from "../helpers/findByIdWithLookup.js";
+import multer from "multer";
+import uploadFile from "../helpers/uploadFile.js";
 
+const router = app.Router();
+const upload = multer();
 const { OK, NOT_FOUND } = statusCodes;
 
 router.get("/filters", async (req, res, next) => {
   try {
-    const [types, genres, directors, writers, cast] = await Promise.all([
+    const [types, genres] = await Promise.all([
       await moviesCollection.distinct("type"),
       await moviesCollection.distinct("genres"),
-      // await collection.distinct("directors"),
-      // await collection.distinct("writers"),
     ]);
-    //
 
     res.status(OK).json({
       types,
       genres,
-      directors,
-      writers,
-      cast,
     });
-    res.status(OK);
   } catch (e) {
     next(e);
   }
@@ -103,6 +98,30 @@ router.get("/:id", async (req, res, next) => {
 
     res.status(OK).json({
       movie: movie,
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.post("/", upload.single("poster"), async (req, res, next) => {
+  try {
+    const { body, file } = req;
+    const uploadData = body;
+
+    if (body.actors) uploadData.actor_ids = convertIds(body.actors);
+    if (body.directors) uploadData.director_ids = convertIds(body.directors);
+
+    if (file) {
+      const posterUrl = await uploadFile(file);
+      uploadData.poster = posterUrl;
+    }
+
+    const { insertedId } = await moviesCollection.insertOne(uploadData);
+
+    res.status(OK).json({
+      id: insertedId,
+      message: "Movie was successfully created!",
     });
   } catch (e) {
     next(e);
