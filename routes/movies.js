@@ -8,6 +8,7 @@ import {
   convertIds,
   convertSearchObject,
   convertSortObject,
+  convertToArray,
   convertWithTotal,
 } from "../helpers/convert.js";
 import { sortBySearchScore } from "../helpers/sort.js";
@@ -111,11 +112,12 @@ router.post("/", upload.single("poster"), async (req, res, next) => {
 
     if (body.actors) uploadData.actor_ids = convertIds(body.actors);
     if (body.directors) uploadData.director_ids = convertIds(body.directors);
+    if (body.genres) uploadData.genres = convertToArray(body.genres);
 
     if (file) {
       const posterUrl = await uploadFile(file);
       uploadData.poster = posterUrl;
-    }
+    } else uploadData.poster = null;
 
     const { insertedId } = await moviesCollection.insertOne(uploadData);
 

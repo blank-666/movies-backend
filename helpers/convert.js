@@ -61,9 +61,12 @@ export const convertWithTotal = (limit, offset) => {
   };
 };
 
+export const convertToArray = (string) => string.split(",");
+
 export const convertIds = (ids) => {
   const idsArray = typeof ids === "string" ? ids.split(",") : ids;
 
   return idsArray.map((id) => new ObjectId(id));
 };
+
 export const convertId = (id) => new ObjectId(id);
