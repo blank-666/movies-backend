@@ -20,4 +20,4 @@ const uploadFile = async (file) => {
   return res.secure_url;
 };
 
-export default uploadFile;
+export { uploadFile };

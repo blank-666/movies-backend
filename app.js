@@ -33,11 +33,14 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", api);
 
+app.use((err, req, res, next) => handleErrorMw(err, req, res, next));
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  next(createHttpError(404));
+  res.status(404).json({
+    status: 404,
+    message: "Route not found.",
+  });
 });
-
-app.use((err, req, res, next) => handleErrorMw(err, req, res, next));
 
 export default app;

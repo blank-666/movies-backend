@@ -15,7 +15,7 @@ import { sortBySearchScore } from "../helpers/sort.js";
 import { ErrorHandler } from "../middlewares/error.js";
 import findByIdWithLookup from "../helpers/findByIdWithLookup.js";
 import multer from "multer";
-import uploadFile from "../helpers/uploadFile.js";
+import { uploadFile } from "../helpers/cloudinary.helper.js";
 
 const router = app.Router();
 const upload = multer();
@@ -85,13 +85,11 @@ router.get("/:id", async (req, res, next) => {
         remoteCollection: "directors",
         newField: "directors",
         originField: "director_ids",
-        remoteField: "name",
       },
       {
         remoteCollection: "actors",
         newField: "actors",
         originField: "actor_ids",
-        remoteField: "name",
       },
     ]);
 
@@ -152,6 +150,44 @@ router.put("/toggleFavorites", async (req, res, next) => {
   }
 });
 
+router.put("/:id", upload.single("poster"), async (req, res, next) => {
+  try {
+    const { params, body, file } = req;
+    const { id } = params;
+    const { actors, directors, genres, ...rest } = body;
+
+    let changes = {};
+
+    if (actors) changes.actor_ids = convertIds(actors);
+    if (directors) changes.director_ids = convertIds(directors);
+    if (genres) changes.genres = convertToArray(genres);
+
+    if (file) {
+      const posterUrl = await uploadFile(file);
+      changes.poster = posterUrl;
+    } else {
+      if (!rest?.keepPoster) changes.poster = null;
+      delete rest.keepPoster;
+    }
+
+    changes = { ...changes, ...rest };
+
+    await moviesCollection.updateOne(
+      { _id: convertId(id) },
+      {
+        $set: changes,
+      }
+    );
+
+    res.status(OK).json({
+      message: "Movie has been updated",
+      id,
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
 router.post("/delete", async (req, res, next) => {
   try {
     const { ids } = req.body;
@@ -159,7 +195,7 @@ router.post("/delete", async (req, res, next) => {
     await moviesCollection.deleteMany({ _id: { $in: convertIds(ids) } });
 
     res.status(OK).json({
-      message: "Movies has been deleted",
+      message: `Movie${ids.length > 1 ? "s" : ""} has been deleted`,
     });
   } catch (e) {
     next(e);

@@ -12,7 +12,6 @@ const { NOT_FOUND } = statusCodes;
  * @param {string} lookups[].remoteCollection - collection from which we extract data
  * @param {string} lookups[].newField - field into which we extract the data
  * @param {string} lookups[].originField - field with references
- * @param {string} lookups[].remoteField - fields that we extract from the document by reference
  * @returns {Promise<object[]>}
  */
 const findByIdWithLookup = async (id, searchCollection, lookups) => {
@@ -21,33 +20,26 @@ const findByIdWithLookup = async (id, searchCollection, lookups) => {
   if (!collection) throw new ErrorHandler(NOT_FOUND, "Collection not found.");
 
   const lookupStages = [];
-  const addFieldsConfig = {};
   const projectConfig = {};
 
   for (const lookup of lookups) {
-    const { remoteCollection, newField, originField, remoteField } = lookup;
-    const temporaryField = `${remoteCollection}_docs`;
+    const { remoteCollection, newField, originField } = lookup;
 
     lookupStages.push({
       $lookup: {
         from: remoteCollection,
         localField: originField,
         foreignField: "_id",
-        as: temporaryField,
+        as: newField,
       },
     });
 
-    (addFieldsConfig[newField] = `$${temporaryField}.${remoteField}`),
-      (projectConfig[temporaryField] = 0);
     projectConfig[originField] = 0;
   }
 
   const stages = [
     { $match: { _id: convertId(id) } },
     ...lookupStages,
-    {
-      $addFields: addFieldsConfig,
-    },
     { $project: projectConfig },
   ];
 
