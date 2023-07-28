@@ -15,7 +15,10 @@ import { sortBySearchScore } from "../helpers/sort.js";
 import { ErrorHandler } from "../middlewares/error.js";
 import findByIdWithLookup from "../helpers/findByIdWithLookup.js";
 import multer from "multer";
-import { uploadFile } from "../helpers/cloudinary.helper.js";
+import {
+  deletePosterByMovieId,
+  uploadFile,
+} from "../helpers/cloudinary.helper.js";
 
 const router = app.Router();
 const upload = multer();
@@ -57,6 +60,12 @@ router.get("/", async (req, res, next) => {
       stages.push(convertSortObject(sort));
     }
 
+    stages.push({
+      $addFields: {
+        poster: "$poster.url",
+      },
+    });
+
     const data = await moviesCollection
       .aggregate([...stages, convertWithTotal(limit, offset)])
       .toArray();
@@ -80,18 +89,29 @@ router.get("/:id", async (req, res, next) => {
     const { params } = req;
     const { id } = params;
 
-    const movie = await findByIdWithLookup(id, "movies", [
-      {
-        remoteCollection: "directors",
-        newField: "directors",
-        originField: "director_ids",
-      },
-      {
-        remoteCollection: "actors",
-        newField: "actors",
-        originField: "actor_ids",
-      },
-    ]);
+    const movie = await findByIdWithLookup(
+      id,
+      "movies",
+      [
+        {
+          remoteCollection: "directors",
+          newField: "directors",
+          originField: "director_ids",
+        },
+        {
+          remoteCollection: "actors",
+          newField: "actors",
+          originField: "actor_ids",
+        },
+      ],
+      [
+        {
+          $addFields: {
+            poster: "$poster.url",
+          },
+        },
+      ]
+    );
 
     if (!movie) throw new ErrorHandler(NOT_FOUND, "Movie not found.");
 
@@ -113,8 +133,11 @@ router.post("/", upload.single("poster"), async (req, res, next) => {
     if (body.genres) uploadData.genres = convertToArray(body.genres);
 
     if (file) {
-      const posterUrl = await uploadFile(file);
-      uploadData.poster = posterUrl;
+      const { url, public_id } = await uploadFile(file);
+      uploadData.poster = {
+        url,
+        public_id,
+      };
     } else uploadData.poster = null;
 
     const { insertedId } = await moviesCollection.insertOne(uploadData);
@@ -163,10 +186,16 @@ router.put("/:id", upload.single("poster"), async (req, res, next) => {
     if (genres) changes.genres = convertToArray(genres);
 
     if (file) {
+      // update poster image
+      await deletePosterByMovieId(id);
       const posterUrl = await uploadFile(file);
       changes.poster = posterUrl;
     } else {
-      if (!rest?.keepPoster) changes.poster = null;
+      if (!rest?.keepPoster) {
+        // delete poster image
+        changes.poster = null;
+        await deletePosterByMovieId(id);
+      }
       delete rest.keepPoster;
     }
 

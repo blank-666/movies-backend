@@ -12,9 +12,15 @@ const { NOT_FOUND } = statusCodes;
  * @param {string} lookups[].remoteCollection - collection from which we extract data
  * @param {string} lookups[].newField - field into which we extract the data
  * @param {string} lookups[].originField - field with references
+ * @param {any[]} additionalStages - additional aggregation stages
  * @returns {Promise<object[]>}
  */
-const findByIdWithLookup = async (id, searchCollection, lookups) => {
+const findByIdWithLookup = async (
+  id,
+  searchCollection,
+  lookups,
+  additionalStages
+) => {
   const collection = db.collection(searchCollection);
 
   if (!collection) throw new ErrorHandler(NOT_FOUND, "Collection not found.");
@@ -41,6 +47,7 @@ const findByIdWithLookup = async (id, searchCollection, lookups) => {
     { $match: { _id: convertId(id) } },
     ...lookupStages,
     { $project: projectConfig },
+    ...additionalStages,
   ];
 
   const result = await db
