@@ -1,7 +1,9 @@
-import app from "express";
-
-import statusCodes from "../constants.js";
-import { moviesCollection } from "../db/collections.js";
+import statusCodes from "../../constants.js";
+import { moviesCollection } from "../../db/collections.js";
+import {
+  deletePosterByMovieId,
+  uploadFile,
+} from "../../helpers/cloudinary.helper.js";
 import {
   convertFilterObject,
   convertId,
@@ -10,21 +12,14 @@ import {
   convertSortObject,
   convertToArray,
   convertWithTotal,
-} from "../helpers/convert.js";
-import { sortBySearchScore } from "../helpers/sort.js";
-import { ErrorHandler } from "../middlewares/error.js";
-import findByIdWithLookup from "../helpers/findByIdWithLookup.js";
-import multer from "multer";
-import {
-  deletePosterByMovieId,
-  uploadFile,
-} from "../helpers/cloudinary.helper.js";
+} from "../../helpers/convert.js";
+import findByIdWithLookup from "../../helpers/findByIdWithLookup.js";
+import { sortBySearchScore } from "../../helpers/sort.js";
+import { ErrorHandler } from "../../middlewares/error.js";
 
-const router = app.Router();
-const upload = multer();
 const { OK, NOT_FOUND } = statusCodes;
 
-router.get("/filters", async (req, res, next) => {
+const getFilters = async (req, res, next) => {
   try {
     const [types, genres] = await Promise.all([
       await moviesCollection.distinct("type"),
@@ -38,9 +33,9 @@ router.get("/filters", async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-});
+};
 
-router.get("/", async (req, res, next) => {
+const getAllMovies = async (req, res, next) => {
   try {
     const { query } = req;
 
@@ -82,9 +77,9 @@ router.get("/", async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-});
+};
 
-router.get("/:id", async (req, res, next) => {
+const getMovieById = async (req, res, next) => {
   try {
     const { params } = req;
     const { id } = params;
@@ -121,9 +116,9 @@ router.get("/:id", async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-});
+};
 
-router.post("/", upload.single("poster"), async (req, res, next) => {
+const createMovie = async (req, res, next) => {
   try {
     const { body, file } = req;
     const uploadData = body;
@@ -149,9 +144,9 @@ router.post("/", upload.single("poster"), async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-});
+};
 
-router.put("/toggleFavorites", async (req, res, next) => {
+const toggleFavorites = async (req, res, next) => {
   try {
     const { ids } = req.body;
 
@@ -171,9 +166,9 @@ router.put("/toggleFavorites", async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-});
+};
 
-router.put("/:id", upload.single("poster"), async (req, res, next) => {
+const updateMovie = async (req, res, next) => {
   try {
     const { params, body, file } = req;
     const { id } = params;
@@ -215,9 +210,9 @@ router.put("/:id", upload.single("poster"), async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-});
+};
 
-router.post("/delete", async (req, res, next) => {
+const deleteMovies = async (req, res, next) => {
   try {
     const { ids } = req.body;
 
@@ -229,6 +224,14 @@ router.post("/delete", async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-});
+};
 
-export default router;
+export {
+  getFilters,
+  getAllMovies,
+  getMovieById,
+  createMovie,
+  updateMovie,
+  deleteMovies,
+  toggleFavorites,
+};

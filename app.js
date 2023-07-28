@@ -4,7 +4,7 @@ import path from "path";
 import createHttpError from "http-errors";
 import cookie from "cookie-parser";
 
-import api from "./routes/index.js";
+import api from "./api/routers/index.js";
 import { handleErrorMw } from "./middlewares/error.js";
 
 const app = express();

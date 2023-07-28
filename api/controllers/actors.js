@@ -1,14 +1,11 @@
-import app from "express";
-import statusCodes from "../constants.js";
-import { actorsCollection } from "../db/collections.js";
-import { convertId, convertSearchObject } from "../helpers/convert.js";
-import { sortBySearchScore } from "../helpers/sort.js";
-
-const router = app.Router();
+import statusCodes from "../../constants.js";
+import { actorsCollection } from "../../db/collections.js";
+import { convertId, convertSearchObject } from "../../helpers/convert.js";
+import { sortBySearchScore } from "../../helpers/sort.js";
 
 const { OK } = statusCodes;
 
-router.get("/", async (req, res, next) => {
+const getAllActors = async (req, res, next) => {
   try {
     const { query } = req;
 
@@ -30,9 +27,9 @@ router.get("/", async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-});
+};
 
-router.post("/", async (req, res, next) => {
+const createActor = async (req, res, next) => {
   try {
     const {
       body: { name },
@@ -53,6 +50,6 @@ router.post("/", async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-});
+};
 
-export default router;
+export { getAllActors, createActor };
