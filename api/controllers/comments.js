@@ -1,6 +1,10 @@
 import statusCodes from "../../constants.js";
 import { commentsCollection, moviesCollection } from "../../db/collections.js";
-import { convertId, convertSortObject } from "../../helpers/convert.js";
+import {
+  convertId,
+  convertSortObject,
+  convertWithTotal,
+} from "../../helpers/convert.js";
 import { ErrorHandler } from "../../middlewares/error.js";
 
 const { OK, NOT_FOUND } = statusCodes;
@@ -9,7 +13,7 @@ const getCommentsById = async (req, res, next) => {
   try {
     const {
       params: { id },
-      query: { sort },
+      query: { offset = 1, limit = 10, sort },
     } = req;
 
     if (!id) throw new ErrorHandler(NOT_FOUND, "Movie not found.");
@@ -35,15 +39,25 @@ const getCommentsById = async (req, res, next) => {
       stages.push(convertSortObject(sort));
     }
 
-    promises.push(commentsCollection.aggregate(stages).toArray());
+    promises.push(
+      commentsCollection
+        .aggregate([...stages, convertWithTotal(limit, offset)])
+        .toArray()
+    );
 
-    const [movie, comments] = await Promise.all(promises);
+    const [movie, commentsData] = await Promise.all(promises);
 
     if (!movie) throw new ErrorHandler(NOT_FOUND, "Movie not found.");
 
+    const { rows, total: totalData } = commentsData[0];
+
+    const count = totalData?.[0]?.count || 0;
+
     res.status(OK).json({
       title: movie.title,
-      comments,
+      rows,
+      total: count,
+      chunk: +offset,
     });
   } catch (e) {
     next(e);
