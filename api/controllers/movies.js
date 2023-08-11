@@ -1,5 +1,5 @@
 import statusCodes from "../../constants.js";
-import { moviesCollection } from "../../db/collections.js";
+import { commentsCollection, moviesCollection } from "../../db/collections.js";
 import {
   deletePosterByMovieId,
   uploadFile,
@@ -84,6 +84,12 @@ const getMovieById = async (req, res, next) => {
     const { params } = req;
     const { id } = params;
 
+    const totalComments = await commentsCollection.countDocuments({
+      movie_id: convertId(id),
+    });
+
+    // movie with 291 comments: 573a1392f29313caabcd9be6
+
     const movie = await findByIdWithLookup(
       id,
       "movies",
@@ -103,6 +109,7 @@ const getMovieById = async (req, res, next) => {
         {
           $addFields: {
             poster: "$poster.url",
+            total_comments: totalComments,
           },
         },
       ]
