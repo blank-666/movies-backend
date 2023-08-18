@@ -42,7 +42,12 @@ const signInController = async (req, res, next) => {
       const passwordIsValid = await validatePassword(password, user.password);
 
       if (passwordIsValid) {
-        const token = await jwt.sign({ username: user.email }, SECRET_KEY);
+        const token = await jwt.sign(
+          { email: user.email, name: user.name, _id: user._id },
+          SECRET_KEY
+        );
+
+        delete user.password;
 
         res.status(OK).json({
           message: "You are successfully logged in!",
@@ -59,4 +64,24 @@ const signInController = async (req, res, next) => {
   }
 };
 
-export { signUpController, signInController };
+const getUser = async (req, res, next) => {
+  try {
+    const { authorization } = req.headers;
+
+    if (!authorization) {
+      res.status(OK).json({
+        user: null,
+      });
+    } else {
+      const payload = await jwt.verify(authorization, SECRET_KEY);
+      if (payload)
+        res.status(OK).json({
+          user: payload,
+        });
+    }
+  } catch (e) {
+    next(e);
+  }
+};
+
+export { signUpController, signInController, getUser };

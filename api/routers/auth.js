@@ -1,5 +1,9 @@
 import app from "express";
-import { signInController, signUpController } from "../controllers/auth.js";
+import {
+  signInController,
+  signUpController,
+  getUser,
+} from "../controllers/auth.js";
 import {
   validateSignUpFields,
   validateSignInFields,
@@ -9,5 +13,6 @@ const router = app.Router();
 
 router.post("/sign-up", validateSignUpFields, signUpController);
 router.post("/sign-in", validateSignInFields, signInController);
+router.get("/get-user", getUser);
 
 export default router;
