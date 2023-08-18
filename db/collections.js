@@ -4,3 +4,4 @@ export const moviesCollection = db.collection("movies");
 export const directorsCollection = db.collection("directors");
 export const actorsCollection = db.collection("actors");
 export const commentsCollection = db.collection("comments");
+export const usersCollection = db.collection("users");
