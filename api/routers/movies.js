@@ -9,6 +9,7 @@ import {
   toggleFavorites,
   updateMovie,
 } from "../controllers/movies.js";
+import { checkAuthorization } from "../../middlewares/validateAuth.js";
 
 const router = app.Router();
 const upload = multer();
@@ -19,12 +20,12 @@ router.get("/", getAllMovies);
 
 router.get("/:id", getMovieById);
 
-router.post("/", upload.single("poster"), createMovie);
+router.post("/", checkAuthorization, upload.single("poster"), createMovie);
 
 router.put("/toggleFavorites", toggleFavorites);
 
-router.put("/:id", upload.single("poster"), updateMovie);
+router.put("/:id", checkAuthorization, upload.single("poster"), updateMovie);
 
-router.post("/delete", deleteMovies);
+router.post("/delete", checkAuthorization, deleteMovies);
 
 export default router;

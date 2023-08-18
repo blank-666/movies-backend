@@ -1,9 +1,12 @@
+import jwt from "jsonwebtoken";
 import statusCodes from "../constants.js";
 import { usersCollection } from "../db/collections.js";
 import { isEmailValid } from "../helpers/auth.helper.js";
 import { ErrorHandler } from "./error.js";
 
-const { INVALID_DATA } = statusCodes;
+const { INVALID_DATA, UNAUTHORIZED } = statusCodes;
+
+const SECRET_KEY = process.env.SECRET_JWT_KEY;
 
 const validateSignUpFields = async (req, res, next) => {
   try {
@@ -53,4 +56,30 @@ const validateSignInFields = async (req, res, next) => {
   }
 };
 
-export { validateSignUpFields, validateSignInFields };
+const checkAuthorization = async (req, res, next) => {
+  try {
+    const { authorization } = req.headers;
+
+    if (!authorization) {
+      throw new ErrorHandler(
+        UNAUTHORIZED,
+        "Only authorized users can perform this operation."
+      );
+    }
+
+    const payload = await jwt.verify(authorization, SECRET_KEY);
+    if (payload) res.user = payload;
+    else {
+      throw new ErrorHandler(
+        UNAUTHORIZED,
+        "Only authorized users can perform this operation."
+      );
+    }
+
+    next();
+  } catch (e) {
+    next(e);
+  }
+};
+
+export { validateSignUpFields, validateSignInFields, checkAuthorization };
