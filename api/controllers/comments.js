@@ -1,5 +1,9 @@
 import statusCodes from "../../constants.js";
-import { commentsCollection, moviesCollection } from "../../db/collections.js";
+import {
+  commentsCollection,
+  moviesCollection,
+  usersCollection,
+} from "../../db/collections.js";
 import {
   convertId,
   convertSortObject,
@@ -7,7 +11,7 @@ import {
 } from "../../helpers/convert.js";
 import { ErrorHandler } from "../../middlewares/error.js";
 
-const { OK, NOT_FOUND } = statusCodes;
+const { OK, NOT_FOUND, INVALID_DATA } = statusCodes;
 
 const getCommentsById = async (req, res, next) => {
   try {
@@ -65,7 +69,43 @@ const getCommentsById = async (req, res, next) => {
 };
 
 const createComment = async (req, res, next) => {
-  console.log("createComment");
+  try {
+    const {
+      body: { text, movie_id },
+      user,
+    } = req;
+
+    if (!text || !movie_id) {
+      throw new ErrorHandler(INVALID_DATA, "Required field is missing.");
+    }
+
+    const movie = await moviesCollection.findOne({ _id: convertId(movie_id) });
+
+    if (!movie) throw new ErrorHandler(NOT_FOUND, "No such movie.");
+
+    const commentPayload = {
+      name: user.name,
+      email: user.email,
+      movie_id: convertId(movie_id),
+      date: new Date(Date.now()),
+      text,
+    };
+
+    const { insertedId } = await commentsCollection.insertOne(commentPayload);
+
+    if (!insertedId)
+      throw new ErrorHandler(SERVER_ERROR, "Something went wrong.");
+
+    res.status(OK).json({
+      message: "Comment was successfully added!",
+      comment: {
+        ...commentPayload,
+        _id: insertedId,
+      },
+    });
+  } catch (e) {
+    next(e);
+  }
 };
 
 export { getCommentsById, createComment };

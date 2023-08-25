@@ -68,7 +68,7 @@ const checkAuthorization = async (req, res, next) => {
     }
 
     const payload = await jwt.verify(authorization, SECRET_KEY);
-    if (payload) res.user = payload;
+    if (payload) req.user = payload;
     else {
       throw new ErrorHandler(
         UNAUTHORIZED,
