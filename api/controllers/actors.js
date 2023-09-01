@@ -1,4 +1,4 @@
-import statusCodes from "../../constants.js";
+import { statusCodes } from "../../constants.js";
 import { actorsCollection } from "../../db/collections.js";
 import { convertId, convertSearchObject } from "../../helpers/convert.js";
 import { sortBySearchScore } from "../../helpers/sort.js";

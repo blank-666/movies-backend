@@ -10,4 +10,8 @@ const statusCodes = {
   SERVER_ERROR: 500,
 };
 
-export default statusCodes;
+const emailTemplates = {
+  ACCOUNT_ACTIVATION: "ACCOUNT_ACTIVATION_EMAIL",
+};
+
+export { emailTemplates, statusCodes };

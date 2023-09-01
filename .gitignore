@@ -3,3 +3,4 @@
 .package.swp
 /package-lock.json
 .env.local
+.env

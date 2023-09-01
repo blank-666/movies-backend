@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import statusCodes from "../constants.js";
+import { statusCodes } from "../constants.js";
 import { usersCollection } from "../db/collections.js";
 import { isEmailValid } from "../helpers/auth.helper.js";
 import { ErrorHandler } from "./error.js";

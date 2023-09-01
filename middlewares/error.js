@@ -1,4 +1,4 @@
-import statusCodes from "../constants.js";
+import { statusCodes } from "../constants.js";
 
 const { SERVER_ERROR } = statusCodes;
 

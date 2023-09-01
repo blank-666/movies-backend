@@ -1,5 +1,5 @@
 import { ErrorHandler } from "../middlewares/error.js";
-import statusCodes from "../constants.js";
+import { statusCodes } from "../constants.js";
 import db from "../db/connect-mongo.mjs";
 import { convertId } from "./convert.js";
 const { NOT_FOUND } = statusCodes;
