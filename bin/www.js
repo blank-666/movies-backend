@@ -30,6 +30,10 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log(`Socket connect: ${socket.id} user just connected!`);
 
+  socket.on("user-typing", (data) => {
+    socket.broadcast.emit("typing-status", { data });
+  });
+
   socket.on("disconnect", () => {
     console.log("Socket disconnect: A user disconnected");
   });
