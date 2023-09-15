@@ -1,3 +1,4 @@
+import { io } from "../../bin/www.js";
 import { statusCodes } from "../../constants.js";
 import {
   commentsCollection,
@@ -96,12 +97,16 @@ const createComment = async (req, res, next) => {
     if (!insertedId)
       throw new ErrorHandler(SERVER_ERROR, "Something went wrong.");
 
+    const newComment = {
+      ...commentPayload,
+      _id: insertedId,
+    };
+
+    io.emit("new-comment", { data: newComment });
+
     res.status(OK).json({
       message: "Comment was successfully added!",
-      comment: {
-        ...commentPayload,
-        _id: insertedId,
-      },
+      comment: newComment,
     });
   } catch (e) {
     next(e);

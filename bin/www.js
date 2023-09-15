@@ -6,6 +6,7 @@
 import debug from "debug";
 import http from "http";
 import app from "../app.js";
+import { Server } from "socket.io";
 
 /**
  * Get port from environment and store in Express.
@@ -19,6 +20,20 @@ app.set("port", port);
  */
 
 const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3007",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log(`Socket connect: ${socket.id} user just connected!`);
+
+  socket.on("disconnect", () => {
+    console.log("Socket disconnect: A user disconnected");
+  });
+});
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -83,3 +98,5 @@ function onListening() {
   const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
   debug("Listening on " + bind);
 }
+
+export { io };
