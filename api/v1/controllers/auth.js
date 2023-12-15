@@ -1,10 +1,13 @@
 import jwt from "jsonwebtoken";
-import { statusCodes, emailTemplates } from "../../constants.js";
-import { usersCollection } from "../../db/collections.js";
-import { hashPassword, validatePassword } from "../../helpers/auth.helper.js";
-import { ErrorHandler } from "../../middlewares/error.js";
-import sendEmail from "../../helpers/email/index.js";
-import { convertId } from "../../helpers/convert.js";
+import { statusCodes, emailTemplates } from "../../../constants.js";
+import { usersCollection } from "../../../db/collections.js";
+import {
+  hashPassword,
+  validatePassword,
+} from "../../../helpers/auth.helper.js";
+import { ErrorHandler } from "../../../middlewares/error.js";
+import sendEmail from "../../../helpers/email/index.js";
+import { convertId } from "../../../helpers/convert.js";
 
 const { OK, NOT_FOUND, UNAUTHORIZED, INVALID_DATA } = statusCodes;
 

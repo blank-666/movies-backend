@@ -4,7 +4,7 @@ import path from "path";
 import createHttpError from "http-errors";
 import cookie from "cookie-parser";
 
-import api from "./api/routers/index.js";
+import v1 from "./api/v1/routers/index.js";
 import { handleErrorMw } from "./middlewares/error.js";
 
 const app = express();
@@ -31,7 +31,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookie());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", api);
+app.use("/", v1);
 
 app.use((err, req, res, next) => handleErrorMw(err, req, res, next));
 

@@ -8,7 +8,7 @@ import {
 import {
   validateSignUpFields,
   validateSignInFields,
-} from "../../middlewares/validateAuth.js";
+} from "../../../middlewares/validateAuth.js";
 
 const router = app.Router();
 

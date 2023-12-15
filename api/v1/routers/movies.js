@@ -9,7 +9,7 @@ import {
   toggleFavorites,
   updateMovie,
 } from "../controllers/movies.js";
-import { checkAuthorization } from "../../middlewares/validateAuth.js";
+import { checkAuthorization } from "../../../middlewares/validateAuth.js";
 
 const router = app.Router();
 const upload = multer();

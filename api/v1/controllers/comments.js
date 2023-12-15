@@ -1,16 +1,16 @@
-import { io } from "../../bin/www.js";
-import { statusCodes } from "../../constants.js";
+import { io } from "../../../bin/www.js";
+import { statusCodes } from "../../../constants.js";
 import {
   commentsCollection,
   moviesCollection,
   usersCollection,
-} from "../../db/collections.js";
+} from "../../../db/collections.js";
 import {
   convertId,
   convertSortObject,
   convertWithTotal,
-} from "../../helpers/convert.js";
-import { ErrorHandler } from "../../middlewares/error.js";
+} from "../../../helpers/convert.js";
+import { ErrorHandler } from "../../../middlewares/error.js";
 
 const { OK, NOT_FOUND, INVALID_DATA } = statusCodes;
 

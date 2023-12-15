@@ -1,9 +1,12 @@
-import { statusCodes } from "../../constants.js";
-import { commentsCollection, moviesCollection } from "../../db/collections.js";
+import { statusCodes } from "../../../constants.js";
+import {
+  commentsCollection,
+  moviesCollection,
+} from "../../../db/collections.js";
 import {
   deletePosterByMovieId,
   uploadFile,
-} from "../../helpers/cloudinary.helper.js";
+} from "../../../helpers/cloudinary.helper.js";
 import {
   convertFilterObject,
   convertId,
@@ -12,10 +15,10 @@ import {
   convertSortObject,
   convertToArray,
   convertWithTotal,
-} from "../../helpers/convert.js";
-import findByIdWithLookup from "../../helpers/findByIdWithLookup.js";
-import { sortBySearchScore } from "../../helpers/sort.js";
-import { ErrorHandler } from "../../middlewares/error.js";
+} from "../../../helpers/convert.js";
+import findByIdWithLookup from "../../../helpers/findByIdWithLookup.js";
+import { sortBySearchScore } from "../../../helpers/sort.js";
+import { ErrorHandler } from "../../../middlewares/error.js";
 
 const { OK, NOT_FOUND } = statusCodes;
 
