@@ -5,6 +5,7 @@ import createHttpError from "http-errors";
 import cookie from "cookie-parser";
 
 import v1 from "./api/v1/routers/index.js";
+import v2 from "./api/v2/routers/index.js";
 import { handleErrorMw } from "./middlewares/error.js";
 
 const app = express();
@@ -32,6 +33,7 @@ app.use(cookie());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", v1);
+app.use("/v2", v2);
 
 app.use((err, req, res, next) => handleErrorMw(err, req, res, next));
 
